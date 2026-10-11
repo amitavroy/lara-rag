@@ -29,6 +29,11 @@
 - Do not use `Route::apiResource()`/`apiResources()` for these controllers — it drops `create`/`edit`, which this app needs for its Inertia form pages.
 - Do not add ad-hoc, non-standard actions to a resource controller (e.g. `POST /orders/{order}/approve`) without discussing it first. Flag the action and its intended route/verb before implementing, so we can agree on whether it belongs on the existing controller, a dedicated single-action controller, or a nested resource.
 
+## AI Providers & Agentic Development
+
+- [OpenRouter](https://openrouter.ai/) is the AI provider for LLM calls. Call models through OpenRouter rather than integrating a provider's SDK/API (OpenAI, Anthropic, etc.) directly, so the model/provider behind a request can change without touching application code.
+- Agentic development (agents, tool calling, structured output, etc.) uses Laravel's `laravel/ai` SDK. Don't hand-roll HTTP clients or reach for another agent framework for this.
+
 ## Primary Keys & Public Identifiers
 
 - All entities use a `bigint` auto-incrementing `id` as their primary key. This is the key used for foreign key relationships between tables.
