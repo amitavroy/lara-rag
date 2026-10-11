@@ -29,8 +29,6 @@ yarn-error.log
 /.zed
 /.agents
 /.amp
-/.claude
-/.cursor
 /.factory
 /.grok
 /.junie
