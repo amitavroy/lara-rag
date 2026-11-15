@@ -1,7 +1,7 @@
 FROM node:22-bookworm-slim AS node
 
 # ---- dev: PHP + Node, source is bind-mounted ----
-FROM php:8.4-cli-bookworm AS dev
+FROM php:8.5-cli-bookworm AS dev
 
 COPY --from=mlocati/php-extension-installer:2 /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions bcmath intl pcntl pdo_pgsql redis zip
