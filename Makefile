@@ -23,7 +23,7 @@ setup: ## One-time dev setup: env files, build, start, migrate
 	@[ -f backend/.env ] || cp backend/.env.example backend/.env
 	$(DC) up -d --build --wait
 	$(DC) exec laravel php artisan migrate --force
-	@echo -e "\n  App:     http://localhost:$${APP_PORT:-8000}\n  RAG API: http://localhost:$${RAG_PORT:-8001}/docs\n"
+	@echo -e "\n  App:     http://localhost:$${APP_PORT:-8000}\n  RAG API: http://localhost:$${RAG_PORT:-8001}/docs\n  Mail:    http://localhost:$${MAILPIT_PORT:-8025}\n"
 
 up: ## Start the dev stack
 	$(DC) up -d --wait
@@ -39,6 +39,9 @@ build: ## Rebuild dev images
 
 ps: ## Show container status
 	$(DC) ps
+
+mail: ## Open the Mailpit inbox (all dev email lands here)
+	@open http://localhost:$${MAILPIT_PORT:-8025} 2>/dev/null || echo "Mailpit: http://localhost:$${MAILPIT_PORT:-8025}"
 
 logs: ## Follow logs (all, or one: make logs ARGS=queue)
 	$(DC) logs -f $(ARGS)
@@ -138,6 +141,6 @@ prod-logs: ## Follow production logs (make prod-logs ARGS=queue)
 prod-artisan: ## Run artisan in production (make prod-artisan ARGS="about")
 	$(DC_PROD) exec laravel php artisan $(ARGS)
 
-.PHONY: help setup up down restart build ps logs clean artisan composer npm migrate fresh tinker \
+.PHONY: help setup up down restart build ps logs clean mail artisan composer npm migrate fresh tinker \
 	test lint types shell rag-test rag-lint rag-add rag-shell db-shell check \
 	prod prod-down prod-ps prod-logs prod-artisan

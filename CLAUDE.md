@@ -7,7 +7,7 @@ A RAG application split into two services that run side by side under Docker Com
 | `backend/`     | Laravel 13   | Users, auth, document upload, job orchestration, Inertia/React UI, LLM calls via `laravel/ai` |
 | `rag-service/` | Python/FastAPI | Parsing, chunking, embedding, retrieval, reranking                            |
 
-Supporting containers: `postgres` (pgvector), `redis` (Laravel queue + cache), `queue` (Laravel worker), `vite` (frontend dev server).
+Supporting containers: `postgres` (pgvector), `redis` (Laravel queue + cache), `queue` (Laravel worker), `vite` (frontend dev server), `mailpit` (catches all dev email).
 
 ## How the services talk
 
@@ -30,9 +30,10 @@ make rag-lint                       # ruff fix + format
 make rag-add ARGS="pgvector"        # add a Python dependency
 make check                          # all tests + static analysis
 make logs ARGS=queue
+make mail                           # open the Mailpit inbox
 ```
 
-Laravel: http://localhost:8000 · RAG API docs: http://localhost:8001/docs
+Laravel: http://localhost:8000 · RAG API docs: http://localhost:8001/docs · Mail: http://localhost:8025
 
 Production: `make prod` builds the `prod` image targets and runs `docker-compose.prod.yml`. Laravel runs on FrankenPHP with a queue worker and scheduler. The RAG service runs without reload and is not exposed to the host. Configuration lives in `backend/.env.production` (gitignored), which also supplies the Postgres credentials.
 

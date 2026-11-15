@@ -12,6 +12,8 @@ x-laravel: &laravel
       condition: service_healthy
     redis:
       condition: service_started
+    mailpit:
+      condition: service_started
 
 services:
   laravel:
@@ -87,6 +89,12 @@ services:
       - "${REDIS_FORWARD_PORT:-6379}:6379"
     volumes:
       - redisdata:/data
+
+  # Catches all outgoing dev mail; inbox at http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:v1.33.1
+    ports:
+      - "${MAILPIT_PORT:-8025}:8025"
 
 volumes:
   pgdata:
