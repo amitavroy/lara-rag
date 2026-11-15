@@ -6,35 +6,35 @@ Ordered in vertical slices. Each slice delivers one user-visible piece end-to-en
 
 | # | Slice | Step | Done |
 |---|-------|------|------|
-| 1 | Listing | Add `spatie/laravel-data` (add a `make composer` target if missing) | [ ] |
-| 2 | Listing | Create `App\Concerns\HasUlid` trait | [ ] |
-| 3 | Listing | Migration `create_collections_table`, `Collection` model, `User::collections()`, `CollectionFactory` | [ ] |
-| 4 | Listing | `CollectionData` DTO (no `id`) | [ ] |
-| 5 | Listing | `CollectionRepository::listForUser`, `CollectionService::list` | [ ] |
-| 6 | Listing | `CollectionController@index` + `Route::resource(...)->except('show')` (only `index` wired so far) | [ ] |
-| 7 | Listing | `pages/collections/index.tsx` (list + empty state), sidebar nav item | [ ] |
-| 8 | Listing | Tests: guest redirect, own-collections-only, no `id` in props, relation unit tests | [ ] |
+| 1 | Listing | Add `spatie/laravel-data` (add a `make composer` target if missing) | [x] |
+| 2 | Listing | Create `App\Concerns\HasUlid` trait | [x] |
+| 3 | Listing | Migration `create_collections_table`, `Collection` model, `User::collections()`, `CollectionFactory` | [x] |
+| 4 | Listing | `CollectionData` DTO (no `id`) | [x] |
+| 5 | Listing | `CollectionRepository::listForUser`, `CollectionService::list` | [x] |
+| 6 | Listing | `CollectionController@index` + `Route::resource(...)->except('show')` (only `index` wired so far) | [x] |
+| 7 | Listing | `pages/collections/index.tsx` (list + empty state), sidebar nav item | [x] |
+| 8 | Listing | Tests: guest redirect, own-collections-only, no `id` in props, relation unit tests | [x] |
 | — | **Review checkpoint** | | |
-| 9 | Create | `StoreCollectionData`, `StoreCollectionRequest` (unique per user, `withoutTrashed`) | [ ] |
-| 10 | Create | `CollectionRepository::create`, `CollectionService::create`, `create`/`store` actions | [ ] |
-| 11 | Create | `pages/collections/create.tsx` + shared `pages/collections/collection-form.tsx` | [ ] |
-| 12 | Create | Tests: row count, active by default, `assertInvalid` cases, duplicate allowed for another user / after soft delete, guest redirect | [ ] |
+| 9 | Create | `StoreCollectionData`, `StoreCollectionRequest` (unique per user, `withoutTrashed`) | [x] |
+| 10 | Create | `CollectionRepository::create`, `CollectionService::create`, `create`/`store` actions | [x] |
+| 11 | Create | `pages/collections/create.tsx` + shared `pages/collections/collection-form.tsx` | [x] |
+| 12 | Create | Tests: row count, active by default, `assertInvalid` cases, duplicate allowed for another user / after soft delete, guest redirect | [x] |
 | — | **Review checkpoint** | | |
-| 13 | Edit | `CollectionPolicy::update` | [ ] |
-| 14 | Edit | `UpdateCollectionData`, `UpdateCollectionRequest` (unique ignores self) | [ ] |
-| 15 | Edit | `CollectionRepository::update`, `CollectionService::update`, `edit`/`update` actions | [ ] |
-| 16 | Edit | `pages/collections/edit.tsx` (reuses `collection-form.tsx`), edit link on index | [ ] |
-| 17 | Edit | Tests: update persists, keeping own name passes, 403 non-owner, `assertInvalid`, guest redirect | [ ] |
+| 13 | Edit | `CollectionPolicy::update` | [x] |
+| 14 | Edit | `UpdateCollectionData`, `UpdateCollectionRequest` (unique ignores self) | [x] |
+| 15 | Edit | `CollectionRepository::update`, `CollectionService::update`, `edit`/`update` actions | [x] |
+| 16 | Edit | `pages/collections/edit.tsx` (reuses `collection-form.tsx`), edit link on index | [x] |
+| 17 | Edit | Tests: update persists, keeping own name passes, 403 non-owner, `assertInvalid`, guest redirect | [x] |
 | — | **Review checkpoint** | | |
-| 18 | Toggle active | `ToggleCollectionActiveController` (invokable) + `PATCH collections/{collection}/toggle-active` route | [ ] |
-| 19 | Toggle active | `CollectionRepository::setActive`, `CollectionService::toggleActive` | [ ] |
-| 20 | Toggle active | Active badge + toggle control on index | [ ] |
-| 21 | Toggle active | Tests: flips both ways, 403 non-owner, guest redirect | [ ] |
+| 18 | Toggle active | `ToggleCollectionActiveController` (invokable) + `PATCH collections/{collection}/toggle-active` route | [x] |
+| 19 | Toggle active | `CollectionRepository::setActive`, `CollectionService::toggleActive` | [x] |
+| 20 | Toggle active | Active badge + toggle control on index | [x] |
+| 21 | Toggle active | Tests: flips both ways, 403 non-owner, guest redirect | [x] |
 | — | **Review checkpoint** | | |
-| 22 | Delete | `CollectionPolicy::delete`, `destroy` action, `CollectionRepository::delete`, `CollectionService::delete` | [ ] |
-| 23 | Delete | `CollectionDeleted` event, `QueueCollectionCleanup` listener, `PurgeCollection` job, `CollectionRepository::findTrashed` / `forceDelete` | [ ] |
-| 24 | Delete | Generic `components/confirm-delete-dialog.tsx`, delete action on index | [ ] |
-| 25 | Delete | Tests: `assertSoftDeleted`, event dispatched, 403 non-owner, guest redirect, job force-deletes trashed / skips restored | [ ] |
+| 22 | Delete | `CollectionPolicy::delete`, `destroy` action, `CollectionRepository::delete`, `CollectionService::delete` | [x] |
+| 23 | Delete | `CollectionDeleted` event, `QueueCollectionCleanup` listener, `PurgeCollection` job, `CollectionRepository::findTrashed` / `forceDelete` | [x] |
+| 24 | Delete | Generic `components/confirm-delete-dialog.tsx`, delete action on index | [x] |
+| 25 | Delete | Tests: `assertSoftDeleted`, event dispatched, 403 non-owner, guest redirect, job force-deletes trashed / skips restored | [x] |
 
 ## Context
 
