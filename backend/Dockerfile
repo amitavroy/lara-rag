@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim AS node
+FROM node:26-bookworm-slim AS node
 
 # ---- dev: PHP + Node, source is bind-mounted ----
 FROM php:8.4-cli-bookworm AS dev
