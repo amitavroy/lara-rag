@@ -13,6 +13,21 @@ jobs:
   backend:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: lara_rag
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: lara_rag
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U lara_rag"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     defaults:
       run:
         working-directory: backend
@@ -35,8 +50,11 @@ jobs:
         with:
           node-version: '22'
 
+      # Scoped to this step: a job-wide DB_HOST would override phpunit's in-memory SQLite.
       - name: Setup Application
         run: composer setup
+        env:
+          DB_HOST: localhost
 
       - name: Run CI Checks
         run: composer ci:check
