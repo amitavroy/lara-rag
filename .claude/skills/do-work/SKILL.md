@@ -23,7 +23,17 @@ The `## To-do` table has rows like `| [ ] | 3 | Add \`Category\` model |`. Find 
 - If every row is already `[x]`, tell the user the plan is fully complete and stop — do not pick a task on your own.
 - Tasks are meant to be done in order because each depends on the ones before it. If the first unchecked row depends on something that doesn't actually exist yet in the codebase (an earlier task was checked off but not really done), stop and tell the user rather than trying to patch over it.
 
-## Step 3 — Do only that one task
+## Step 3 — Make sure you're on a branch (never work on main)
+
+Run `git branch --show-current`.
+
+- If it is `main` or `master` (or empty, i.e. detached HEAD), create and switch to a branch before touching any code: `git checkout -b <branch>`. Uncommitted changes carry over, which is fine. Name it:
+  - `gh-<issue>-<slug>` if the plan references a GitHub issue (check the plan's header/title for `#<n>` or an issue URL), where `<slug>` is the plan filename minus its number prefix and `.md`;
+  - otherwise the plan filename minus `.md` (e.g. `021-category-taxonomy`).
+- If it is any other branch, stay on it — it's the ticket branch from an earlier invocation. Do not create another one or switch away.
+- Never commit here. Branching is only about where the work lands; committing still follows Step 6's rule. This step runs only after Step 2 found a task to do, so a fully complete plan never creates a branch.
+
+## Step 4 — Do only that one task
 
 Implement exactly the scope of that single row — no more. Follow the codebase's own conventions:
 
@@ -34,11 +44,11 @@ Implement exactly the scope of that single row — no more. Follow the codebase'
 
 Do not start the next task, even if it looks trivial or tightly coupled — leave it for the next invocation.
 
-## Step 4 — Mark the task done
+## Step 5 — Mark the task done
 
 Edit the plan file: flip that row's `[ ]` to `[x]`.
 
-## Step 5 — Format and report
+## Step 6 — Format and report
 
 Run `vendor/bin/pint --dirty --format agent` if any PHP files changed. Run any narrowly-scoped tests the task calls for.
 
