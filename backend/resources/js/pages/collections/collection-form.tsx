@@ -21,7 +21,13 @@ export default function CollectionForm({
 }: Props) {
     return (
         <Form {...formProps} className="max-w-xl space-y-6">
-            {({ processing, errors }: { processing: boolean; errors: Record<string, string> }) => (
+            {({
+                processing,
+                errors,
+            }: {
+                processing: boolean;
+                errors: Record<string, string>;
+            }) => (
                 <>
                     <div className="grid gap-2">
                         <Label htmlFor="name">Name</Label>

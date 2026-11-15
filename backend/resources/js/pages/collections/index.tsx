@@ -4,7 +4,13 @@ import ConfirmDeleteDialog from '@/components/confirm-delete-dialog';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { create, destroy, edit, index, toggleActive } from '@/routes/collections';
+import {
+    create,
+    destroy,
+    edit,
+    index,
+    toggleActive,
+} from '@/routes/collections';
 import type { Collection } from '@/types';
 
 export default function CollectionsIndex({
@@ -12,9 +18,7 @@ export default function CollectionsIndex({
 }: {
     collections: Collection[];
 }) {
-    const [pendingDelete, setPendingDelete] = useState<Collection | null>(
-        null,
-    );
+    const [pendingDelete, setPendingDelete] = useState<Collection | null>(null);
     const [deleting, setDeleting] = useState(false);
     const [togglingUlid, setTogglingUlid] = useState<string | null>(null);
 
