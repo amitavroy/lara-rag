@@ -1,0 +1,94 @@
+name: lara-rag
+
+x-laravel: &laravel
+  build:
+    context: ./backend
+    target: dev
+  image: lara-rag-laravel
+  volumes:
+    - ./backend:/var/www/html
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_started
+
+services:
+  laravel:
+    <<: *laravel
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://localhost:8000/up') === false ? 1 : 0);"]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
+
+  # Waits on laravel so only that container runs the first-boot composer install.
+  queue:
+    <<: *laravel
+    command: ["php", "artisan", "queue:listen", "--tries=1", "--timeout=0"]
+    depends_on:
+      laravel:
+        condition: service_healthy
+
+  vite:
+    <<: *laravel
+    command: ["sh", "-c", "[ -x node_modules/.bin/vp ] || npm ci; npm run dev"]
+    ports:
+      - "${VITE_PORT:-5173}:5173"
+    volumes:
+      - ./backend:/var/www/html
+      # Linux-native node_modules, kept apart from anything installed on the host.
+      - node_modules:/var/www/html/node_modules
+    depends_on:
+      laravel:
+        condition: service_healthy
+
+  rag:
+    build:
+      context: ./rag-service
+      target: dev
+    # Sync first so packages added since the image was built are installed.
+    command: ["sh", "-c", "uv sync --frozen && uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload"]
+    ports:
+      - "${RAG_PORT:-8001}:8001"
+    environment:
+      DATABASE_URL: postgresql://${DB_USERNAME:-lara_rag}:${DB_PASSWORD:-secret}@postgres:5432/${DB_DATABASE:-lara_rag}
+      LARAVEL_STORAGE_PATH: /data/laravel-storage
+    volumes:
+      - ./rag-service:/app
+      - ./backend/storage/app:/data/laravel-storage:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    ports:
+      - "${DB_FORWARD_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-lara_rag}
+      POSTGRES_USER: ${DB_USERNAME:-lara_rag}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_FORWARD_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+
+volumes:
+  pgdata:
+  redisdata:
+  node_modules:

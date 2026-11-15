@@ -1,0 +1,78 @@
+name: lara-rag-prod
+
+x-laravel: &laravel
+  build:
+    context: ./backend
+    target: prod
+  image: lara-rag-laravel:prod
+  restart: unless-stopped
+  env_file: ./backend/.env.production
+  volumes:
+    - laravel-storage:/app/storage/app
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_started
+
+services:
+  laravel:
+    <<: *laravel
+    ports:
+      - "${PROD_HTTP_PORT:-80}:80"
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@file_get_contents('http://localhost/up') === false ? 1 : 0);"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  queue:
+    <<: *laravel
+    command: ["php", "artisan", "queue:work", "--tries=3", "--max-time=3600"]
+
+  scheduler:
+    <<: *laravel
+    command: ["php", "artisan", "schedule:work"]
+
+  rag:
+    build:
+      context: ./rag-service
+      target: prod
+    image: lara-rag-rag:prod
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${DB_USERNAME:-lara_rag}:${DB_PASSWORD:?set DB_PASSWORD in .env}@postgres:5432/${DB_DATABASE:-lara_rag}
+      LARAVEL_STORAGE_PATH: /data/laravel-storage
+    volumes:
+      - laravel-storage:/data/laravel-storage:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-lara_rag}
+      POSTGRES_USER: ${DB_USERNAME:-lara_rag}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+
+volumes:
+  laravel-storage:
+  pgdata:
+  redisdata:

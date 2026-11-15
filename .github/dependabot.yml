@@ -1,0 +1,28 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+  - package-ecosystem: "composer"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "uv"
+    directory: "/rag-service"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "docker"
+    directories: ["/backend", "/rag-service"]
+    schedule:
+      interval: "weekly"
