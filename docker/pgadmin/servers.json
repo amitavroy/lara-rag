@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "lara-rag",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "lara_rag",
+      "Username": "lara_rag",
+      "SSLMode": "prefer"
+    }
+  }
+}

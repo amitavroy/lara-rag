@@ -96,7 +96,26 @@ services:
     ports:
       - "${MAILPIT_PORT:-8025}:8025"
 
+  # Postgres UI at http://localhost:5050, no login (desktop mode). Connect to the
+  # preregistered "lara-rag" server using DB_PASSWORD.
+  pgadmin:
+    image: dpage/pgadmin4:9
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: ${DB_PASSWORD:-secret}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    volumes:
+      - pgadmindata:/var/lib/pgadmin
+      - ./docker/pgadmin/servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
+  pgadmindata:
   pgdata:
   redisdata:
   node_modules:

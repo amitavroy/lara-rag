@@ -7,7 +7,7 @@ A RAG application split into two services that run side by side under Docker Com
 | `backend/`     | Laravel 13   | Users, auth, document upload, job orchestration, Inertia/React UI, LLM calls via `laravel/ai` |
 | `rag-service/` | Python/FastAPI | Parsing, chunking, embedding, retrieval, reranking                            |
 
-Supporting containers: `postgres` (pgvector), `redis` (Laravel queue + cache), `queue` (Laravel worker), `vite` (frontend dev server), `mailpit` (catches all dev email).
+Supporting containers: `postgres` (pgvector), `redis` (Laravel queue + cache), `queue` (Laravel worker), `vite` (frontend dev server), `mailpit` (catches all dev email), `pgadmin` (Postgres UI at http://localhost:5050).
 
 ## How the services talk
 
