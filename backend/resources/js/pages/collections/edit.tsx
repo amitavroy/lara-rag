@@ -1,6 +1,6 @@
-import { Head } from '@inertiajs/react';
+import { Head, setLayoutProps } from '@inertiajs/react';
 import Heading from '@/components/heading';
-import { index, update } from '@/routes/collections';
+import { edit, index, update } from '@/routes/collections';
 import type { Collection } from '@/types';
 import CollectionForm from './collection-form';
 
@@ -9,6 +9,13 @@ export default function EditCollection({
 }: {
     collection: Collection;
 }) {
+    setLayoutProps({
+        breadcrumbs: [
+            { title: 'Collections', href: index() },
+            { title: 'Edit', href: edit(collection.ulid) },
+        ],
+    });
+
     return (
         <>
             <Head title="Edit collection" />
@@ -26,10 +33,3 @@ export default function EditCollection({
         </>
     );
 }
-
-EditCollection.layout = {
-    breadcrumbs: [
-        { title: 'Collections', href: index() },
-        { title: 'Edit', href: index() },
-    ],
-};

@@ -2,6 +2,7 @@
 
 use App\Models\Collection;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 
 test('guests are redirected from create and store', function () {
     $this->get(route('collections.create'))->assertRedirect(route('login'));
@@ -79,4 +80,12 @@ test('the same name is allowed after the original is soft deleted', function () 
         ->assertValid();
 
     $this->assertDatabaseCount('collections', 2);
+});
+
+test('the database rejects a duplicate name for the same user among live rows', function () {
+    $user = User::factory()->create();
+    Collection::factory()->for($user)->create(['name' => 'Docs']);
+
+    expect(fn () => Collection::factory()->for($user)->create(['name' => 'Docs']))
+        ->toThrow(QueryException::class);
 });

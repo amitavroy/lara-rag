@@ -42,7 +42,7 @@ These rules apply to the Laravel app in `backend/`. Python conventions live in `
 - Entities that are public-facing (exposed in URLs or to external consumers — e.g. `Client`, `Project`, `Summary`) additionally have a `ulid` column, used for public-facing lookups instead of exposing the internal `id`.
 - A ULID is globally unique by construction, so no per-tenant/company uniqueness scoping is needed once a `Company` (or equivalent tenant) concept exists — unlike a human-readable slug, a ULID column only ever needs a plain unique constraint on `ulid` itself.
 - **Hard rule: the internal `id` (PK) must never be exposed** — not in URLs/routes, API/Inertia responses, DTOs, or route model binding. Public-facing entities are looked up and rendered by `ulid`; internal-only entities are never exposed to clients at all. Enforce this in DTOs (omit `id` from output `Data` classes for public-facing entities) and in routing (bind by `ulid`, not `id`).
-- Public-facing models `use App\Concerns\HasUlid`. The trait composes Laravel's `HasUlids`, generates `ulid` on create when omitted, merges `ulid` into fillable if missing, and binds routes on `ulid`.
+- Public-facing models `use App\Concerns\HasUlid`. The trait composes Laravel's `HasUlids`, generates `ulid` on create when omitted, and binds routes on `ulid`. `ulid` is deliberately **not** fillable — it is only ever set by the `creating` hook, never by caller input.
 
 ## Enum-Type Data
 
@@ -52,6 +52,11 @@ These rules apply to the Laravel app in `backend/`. Python conventions live in `
 ## Migrations
 
 - When defining a foreign key column, use `$table->foreignIdFor(Model::class)` instead of `$table->foreignId('model_id')`. `foreignIdFor` derives the column name from the model and keeps the column type in sync with the referenced model's key type, instead of hardcoding a string column name.
+
+## Frontend: In-flight Requests
+
+- Any control that fires a request (toggle, delete, submit, etc.) must guard against double-firing while that request is in flight. Track the state with the Inertia visit callbacks (`onStart` / `onFinish`) or the `processing` flag from `<Form>` / `useForm`, and disable the control meanwhile.
+- For controls rendered per row, track which row is in flight (e.g. its `ulid`) rather than one global boolean, so other rows stay usable.
 
 ## Frontend Folder Structure
 
@@ -71,6 +76,10 @@ These rules apply to the Laravel app in `backend/`. Python conventions live in `
   - Example: prefer `$data = StoreClientData::from($request->validated()); $this->clients->create($data);` over `$this->clients->create(StoreClientData::from($request->validated()))`.
   - Rule of thumb: a single, obvious pass-through like `response()->json($this->clients->find($slug))` is fine — there's only one transformation and its intent is self-evident. Once a value is being *constructed or transformed* (DTO hydration, slug generation, etc.) before being handed to another call, that construction step gets its own named variable.
   - Don't take this shortcut even when it saves a line — favor the version a reader can scan without holding extra state in their head.
+
+## Code Review
+
+- Do not raise static-analysis findings (Larastan/PHPStan type or nullability complaints) in code review. `make check` runs them, so reviews focus on behaviour, design and architecture-rule compliance.
 
 ## Tests & Best Practices
 

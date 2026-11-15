@@ -53,7 +53,7 @@ This is the first domain feature in `backend/`. `docs/architecture/index.md` ass
 
 1. **Activate/deactivate is a single-action invokable controller** at `PATCH /collections/{collection}/toggle-active` (`collections.toggle-active`). The architecture doc says not to add ad-hoc actions to a resource controller without agreement. A dedicated invokable controller keeps `CollectionController` purely CRUDY and keeps edit separate from the state change.
 2. **Soft delete, then event → listener → queued job.** The architecture rule says the job reloads data at execution time. That only works for a deletion event if the row is still loadable, so `Collection` uses `SoftDeletes`. The job reloads with `withTrashed()`. If the row is missing or was restored (`deleted_at` is null), it bails. Otherwise it purges, which for now just means force-deleting the row; documents and chunks get purged later. The event payload is just `int $collectionId`.
-3. **Names are unique per user and ignore soft-deleted rows.** This is enforced in the FormRequests with `Rule::unique('collections')->where('user_id', …)->withoutTrashed()`. There is no DB-level unique index, because a plain `(user_id, name)` index would block reusing a name while a deleted collection waits for its purge job.
+3. **Names are unique per user and ignore soft-deleted rows.** This is enforced in the FormRequests with `Rule::unique('collections')->where('user_id', …)->withoutTrashed()`, and again in Postgres by a partial unique index on `(user_id, name) where deleted_at is null`. A plain `(user_id, name)` index would block reusing a name while a deleted collection waits for its purge job; the partial index doesn't.
 4. **New collections are active by default** (`is_active` boolean, default `true`). Active/inactive is a binary flag, not a categorical set, so a boolean is enough; an enum isn't needed.
 5. **Public ID is the ULID.** The model uses `HasUlid` and route binding resolves on `ulid`. `CollectionData` leaves out `id`. The internal id only appears in the event/job payload, which never reaches the client.
 6. **Ownership is enforced by `CollectionPolicy`.** `update`, `toggle` and `delete` (edit reuses `update`) return `$user->id === $collection->user_id`. Routes apply it with `->can(...)` middleware, so non-owners get a 403 before reaching the controller. `index` is scoped by the repository to the authenticated user.
@@ -76,13 +76,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 trait HasUlid
 {
     use HasUlids;
-
-    public function initializeHasUlid(): void
-    {
-        if (! in_array('ulid', $this->fillable, true)) {
-            $this->mergeFillable(['ulid']);
-        }
-    }
 
     /**
      * @return array<int, string>
@@ -116,6 +109,8 @@ Schema::create('collections', function (Blueprint $table) {
 
     $table->index(['user_id', 'deleted_at']);
 });
+
+DB::statement('create unique index collections_user_id_name_unique on collections (user_id, name) where deleted_at is null');
 ```
 
 ### Model

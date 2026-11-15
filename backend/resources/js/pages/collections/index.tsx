@@ -16,6 +16,7 @@ export default function CollectionsIndex({
         null,
     );
     const [deleting, setDeleting] = useState(false);
+    const [togglingUlid, setTogglingUlid] = useState<string | null>(null);
 
     const confirmDelete = () => {
         if (!pendingDelete) {
@@ -89,11 +90,22 @@ export default function CollectionsIndex({
                                     <Button
                                         variant="outline"
                                         size="sm"
+                                        disabled={
+                                            togglingUlid === collection.ulid
+                                        }
                                         onClick={() =>
                                             router.patch(
                                                 toggleActive(collection.ulid),
                                                 {},
-                                                { preserveScroll: true },
+                                                {
+                                                    preserveScroll: true,
+                                                    onStart: () =>
+                                                        setTogglingUlid(
+                                                            collection.ulid,
+                                                        ),
+                                                    onFinish: () =>
+                                                        setTogglingUlid(null),
+                                                },
                                             )
                                         }
                                     >

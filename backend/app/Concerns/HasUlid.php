@@ -8,13 +8,6 @@ trait HasUlid
 {
     use HasUlids;
 
-    public function initializeHasUlid(): void
-    {
-        if (! in_array('ulid', $this->fillable, true)) {
-            $this->mergeFillable(['ulid']);
-        }
-    }
-
     /**
      * @return array<int, string>
      */
